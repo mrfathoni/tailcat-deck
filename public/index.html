@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>tailcat deck</title>
+    <script src="/theme.js"></script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-inner">
+        <a class="brand" href="/">tailcat <span>deck</span></a>
+        <div class="header-actions">
+          <button id="theme-btn" class="btn" type="button">Dark</button>
+          <button id="check-all-btn" class="btn" type="button">Check all</button>
+          <button id="identity-btn" class="btn" type="button">Client key</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="panel sidebar">
+        <div class="sidebar-actions">
+          <input id="search" class="input" type="search" placeholder="Search hosts" autocomplete="off" />
+          <button id="add-btn" class="btn btn-primary" type="button">Add host</button>
+        </div>
+        <p id="host-count" class="muted small count"></p>
+        <div id="host-list" class="host-list"></div>
+        <p id="sidebar-empty" class="muted small empty-note" hidden>No hosts found.</p>
+      </aside>
+
+      <section class="panel content">
+        <div id="empty-view" class="empty-view">
+          <h1>No hosts yet</h1>
+          <p class="muted">Add a tailcat key to run commands over its tunnel.</p>
+          <button id="empty-add-btn" class="btn btn-primary" type="button">Add host</button>
+          <div class="help-box">
+            <p><strong>Start a server on the host:</strong></p>
+            <pre>tailcat serve no-auth-ssh</pre>
+            <p class="muted small">Copy the tc... address it prints and paste it here.</p>
+          </div>
+        </div>
+
+        <div id="host-view" hidden>
+          <div class="host-top">
+            <div class="host-info">
+              <div class="host-title">
+                <h1 id="host-name"></h1>
+                <button id="rename-btn" class="btn btn-small" type="button">Rename</button>
+                <button id="auto-name-btn" class="btn btn-small" type="button" hidden>Auto name</button>
+              </div>
+              <div class="host-key-row">
+                <code id="host-key"></code>
+                <button id="copy-key-btn" class="btn btn-small" type="button">Copy</button>
+              </div>
+            </div>
+            <div class="host-actions">
+              <button id="refresh-btn" class="btn" type="button">Refresh</button>
+              <button id="delete-btn" class="btn btn-danger" type="button">Delete</button>
+            </div>
+          </div>
+
+          <p id="host-alert" class="alert" hidden></p>
+
+          <dl class="stats">
+            <div><dt>Status</dt><dd id="stat-status"></dd></div>
+            <div><dt>Path</dt><dd id="stat-path"></dd></div>
+            <div><dt>Latency</dt><dd id="stat-latency"></dd></div>
+            <div><dt>User</dt><dd id="stat-user"></dd></div>
+            <div><dt>Kernel</dt><dd id="stat-kernel"></dd></div>
+            <div><dt>Arch</dt><dd id="stat-arch"></dd></div>
+            <div><dt>OS</dt><dd id="stat-os"></dd></div>
+            <div><dt>Last seen</dt><dd id="stat-seen"></dd></div>
+          </dl>
+
+          <div class="console">
+            <div class="console-head">
+              <div><strong>Shell</strong> <span id="console-host" class="muted small"></span></div>
+              <button id="clear-btn" class="btn btn-small" type="button">Clear</button>
+            </div>
+            <div id="console-out" class="console-out"></div>
+            <div class="console-foot">
+              <div id="presets" class="presets"></div>
+              <form id="cmd-form" class="command-form">
+                <span class="prompt">$</span>
+                <input id="cmd-input" class="cmd-input" placeholder="Run a command" autocomplete="off" spellcheck="false" aria-label="Command" />
+                <button id="run-btn" class="btn btn-primary" type="submit">Run</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="add-dialog">
+      <div class="dialog-body">
+        <div class="dialog-head">
+          <h2>Add host</h2>
+          <button class="btn btn-small" type="button" data-close>Close</button>
+        </div>
+        <form id="add-form">
+          <label>
+            Host key
+            <textarea id="add-key" class="input" rows="3" placeholder="tcpGFwW..." spellcheck="false" autocomplete="off" required></textarea>
+          </label>
+          <p class="muted small">The address printed by <code>tailcat serve</code>.</p>
+          <div class="form-row">
+            <label>
+              Name (optional)
+              <input id="add-name" class="input" placeholder="auto" autocomplete="off" />
+            </label>
+            <label>
+              SSH user (optional)
+              <input id="add-user" class="input" placeholder="auto" autocomplete="off" />
+            </label>
+          </div>
+          <p id="add-error" class="error" hidden></p>
+          <div class="dialog-actions">
+            <button class="btn" type="button" data-close>Cancel</button>
+            <button id="add-submit" class="btn btn-primary" type="submit">Add host</button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
+    <dialog id="identity-dialog">
+      <div class="dialog-body">
+        <div class="dialog-head">
+          <h2>Client key</h2>
+          <button class="btn btn-small" type="button" data-close>Close</button>
+        </div>
+        <p class="muted small">This machine's node key. Servers using --allow must list it.</p>
+        <div class="key-box">
+          <code id="identity-key">loading...</code>
+          <button id="copy-identity" class="btn btn-small" type="button">Copy</button>
+        </div>
+        <p id="identity-hint" class="muted small"></p>
+        <p class="small"><strong>Saved keys</strong></p>
+        <p id="identity-keys" class="muted small"></p>
+        <div class="dialog-actions">
+          <button class="btn" type="button" data-close>Close</button>
+        </div>
+      </div>
+    </dialog>
+
+    <div id="toasts" class="toasts"></div>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "name": "tailcat-deck",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A small local web console for tailcat hosts.",
+  "scripts": {
+    "start": "bun server.js",
+    "dev": "bun --watch server.js"
+  }
+}
